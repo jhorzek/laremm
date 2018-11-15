@@ -7,12 +7,14 @@
 #' @param fitfun fitfunction to be used in the fitting procedure. Either FML or FIML
 #' @param ncp_rmsea should rmsea and ncp be computed? Only possible for covariance based models
 #' @param cvsample mxData object with test sample data. Has to be of same data_type as the training data set
+#' @param satmod saturated model. necessary for computation of ncp and rmsea in FIML models. In many cases, the OpenMx mxRefModels(model, run =TURE) function can be used to build this saturated model. Make sure to only provide the fitted saturated model, not the indipendence model
+#' @param cv_satmod saturated model for cross validation. This model has to be based on the cv sample
 #'
 #' @export
 
 
 
-getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", ncp_rmsea = FALSE, cvsample = NULL){
+getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", ncp_rmsea = FALSE, cvsample = NULL, satmod= NULL, cv_satmod =NULL){
 
   return_value <- data.frame("estimated_params" = NA, "mxAIC"= NA, "lavaan_AIC"= NA,
                              "mxBIC"= NA, "lavaan_BIC"= NA, "ncp" = NA, "rmsea"= NA,
@@ -27,8 +29,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   return_value$half_FML <- FML[1,1]
   return_value$FML_plus_penalty <- FML[1,2]
   return_value$half_FML_plus_penalty <- FML[1,3]
-  }
-  else{
+  } else{
     return_value$half_FML <- NA
     return_value$FML_plus_penalty <- NA
     return_value$half_FML_and_penalty <- NA}
@@ -137,20 +138,30 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   if(ncp_rmsea == TRUE){
     if(fitfun == "FIML"){
       print("rmsea and ncp not tested for FIML")
-      # step 1: get minus 2 LL
-      m2LL <- regmodel$BaseModel$fitfunction$result[1,1]
+      ## step 1: get saturated  model
+      satmod <- satmod
+      #get minus 2 LL
+      m2LL_reg <- regmodel$BaseModel$fitfunction$result[1] # m2LL of regularized model
+      m2LL_sat <- satmod$fitfunction$result[1] # m2LL of saturated model
+      chisq <- m2LL_reg - m2LL_sat
+      ## step 2: get difference in df:
+
+      # get new df of regularized model:
       temp <- mxRun(new_model, useOptimizer = F, silent = T)
+      df_reg <- summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters
 
-      # step 2: get new df
-      df <- summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters
+      # get df of saturated model:
+      df_sat <- summary(satmod)$degreesOfFreedom
 
-      if(m2LL < df){
+      # compute df
+      df <- df_reg- df_sat
+
+      if(chisq < df){
         ncp_value <- 0
         rmsea_value <- 0
-      }
-      else{
-        ncp_value <- (m2LL - df)/(nrow(regmodel$BaseModel$data$observed)-1)
-        rmsea_value <- sqrt(m2LL - df)/sqrt(df * (nrow(regmodel$BaseModel$data$observed)-1))
+      } else{
+        ncp_value <- (chisq - df)/(nrow(regmodel$BaseModel$data$observed)-1)
+        rmsea_value <- sqrt(chisq - df)/sqrt(df * (nrow(regmodel$BaseModel$data$observed))-1)# Note: the formula is not equivalent to results from OpenMx: insted of N-1, N is used in OpenMx
       }
       return_value$ncp <- ncp_value
       return_value$rmsea <- rmsea_value}
@@ -175,7 +186,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   }
   else{
     ncp_value <- (half_FML*2*regmodel$BaseModel$data$numObs - df)/(regmodel$BaseModel$data$numObs-1)
-    rmsea_value <- sqrt(half_FML*2*regmodel$BaseModel$data$numObs - df)/sqrt(df * (regmodel$BaseModel$data$numObs-1))
+    rmsea_value <- sqrt(half_FML*2*regmodel$BaseModel$data$numObs - df)/sqrt(df * (regmodel$BaseModel$data$numObs)-1)# Note: the formula is not equivalent to results from OpenMx: insted of N-1, N is used in OpenMx
   }
   return_value$ncp <- ncp_value
   return_value$rmsea <- rmsea_value}
@@ -216,24 +227,34 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
       return_value$CV_rmsea <- CV_rmsea}
       else if(fitfun == "FIML"){
         print("rmsea and ncp not tested for FIML")
+        ## step 1: get saturated  model
+        cv_satmod <- cv_satmod
         # step 1: get minus 2 LL
-        m2LL <- fit_CVModel$fitfunction$result[1,1]
+        m2LL_cv <- fit_CVModel$fitfunction$result[1,1] # m2LL of CV model
+        m2LL_sat <- cv_satmod$fitfunction$result[1] # m2LL of saturated model
 
+        chisq <- m2LL_sat - m2LL_cv
+        ## step 2: get difference in df:
 
-        # step 2: get new df
-        df <- summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters
+        # get new df of regularized model:
 
-        if(m2LL < df){
+        df_cv <- summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters
+        # get df of saturated model:
+        df_sat <- summary(cv_satmod)$degreesOfFreedom
+        # compute df
+        df <- df_cv- df_sat
+
+        if(chisq < df){
           ncp_value <- 0
           rmsea_value <- 0
         }
         else{
-          ncp_value <- (m2LL - df)/(nrow(fit_CVModel$data$observed)-1)
-          rmsea_value <- sqrt(m2LL - df)/sqrt(df * (nrow(fit_CVModel$data$observed)-1))
+          ncp_value <- (chisq - df)/(nrow(fit_CVModel$data$observed)-1)
+          rmsea_value <- sqrt(chisq - df)/sqrt(df * (nrow(fit_CVModel$data$observed)-1))
         }
-
-
-      }}
+        return_value$CV_ncp <- CV_ncp
+        return_value$CV_rmsea <- CV_rmsea}
+      }
     else if(ncp_rmsea!=TRUE){
       return_value$CV_ncp <- NA
       return_value$CV_rmsea <- NA}
