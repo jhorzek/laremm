@@ -6,6 +6,12 @@
 \usage{
 getFML(regmodel, use_unbiasedCov = FALSE)
 }
+\arguments{
+\item{regmodel}{already run regularized model}
+
+\item{use_unbiasedCov}{wheather to use the unbiased covariance; default is FALSE which is equivalent to regsem}
+}
 \description{
-get FML values
+Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
+Computes FML values corresponding to the values reported in \pkg{regsem} for covariance based models
 }

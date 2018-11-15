@@ -51,7 +51,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   pb <- txtProgressBar(min = pen_start, max = pen_end, style = 3) # progress-bar
   for(i in pen_values){
     results["penalty",counter] <- i
-    reg_Model <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
+    reg_Model <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
                                 pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA, selectedS = selectedS)
 
     reg_Model <- mxOption(reg_Model, "Calculate Hessian", "No") # might cause errors; check
@@ -89,7 +89,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   # getting parameters:
   if(fit_index == "AIC"){
     best_penalty = minimum_mxAIC
-  reg_Model_AIC <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxAIC,
+  reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxAIC,
                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                   selectedS = selectedS)
   fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
@@ -99,7 +99,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
   if(fit_index == "BIC"){
     best_penalty = minimum_mxBIC
-  reg_Model_BIC <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxBIC,
+  reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxBIC,
                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                   selectedS = selectedS)
   fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
@@ -108,7 +108,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
   if(fit_index == "RMSEA"){
     best_penalty = minimum_Rmsea
-  reg_Model_rmsea <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Rmsea,
+  reg_Model_rmsea <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Rmsea,
                                     pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                     selectedS = selectedS)
   fit_reg_Model_rmsea <- mxRun(reg_Model_rmsea, silent = T)
@@ -117,7 +117,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
   if(fit_index == "NCP"){
     best_penalty = minimum_Ncp
-    reg_Model_ncp <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Ncp,
+    reg_Model_ncp <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Ncp,
                                           pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                           selectedS = selectedS)
     fit_reg_Model_ncp <- mxRun(reg_Model_ncp, silent = T)
@@ -147,7 +147,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         results["penalty",counter] <- i # save penalty value
 
 
-        train_reg_Model <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
+        train_reg_Model <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
                                     pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                     selectedS = selectedS)
 
@@ -200,7 +200,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         # getting parameters:
         if(fit_index == "CV_m2LL"){
           best_penalty = minimum_CVm2LL
-          reg_Model_CV_m2LL <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CVm2LL,
+          reg_Model_CV_m2LL <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CVm2LL,
                                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                   selectedS = selectedS)
           fit_reg_Model_CV_m2LL <- mxRun(reg_Model_CV_m2LL, silent = T)
@@ -209,7 +209,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
         if(fit_index == "AIC"){
           best_penalty = minimum_CV_AIC
-          reg_Model_AIC <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_AIC,
+          reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_AIC,
                                               pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                               selectedS = selectedS)
           fit_reg_Model_AIC <- mxRun(reg_Model_AIC, silent = T)
@@ -218,7 +218,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
         if(fit_index == "BIC"){
           best_penalty = minimum_CV_BIC
-          reg_Model_BIC <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_BIC,
+          reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_BIC,
                                               pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                               selectedS = selectedS)
           fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
@@ -227,7 +227,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
         if(fit_index == "RMSEA"){
           best_penalty = minimum_CV_RMSEA
-          reg_Model_rmsea <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_RMSEA,
+          reg_Model_rmsea <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_RMSEA,
                                                 pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                 selectedS = selectedS)
           fit_reg_Model_rmsea <- mxRun(reg_Model_rmsea, silent = T)
@@ -235,7 +235,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         }
         if(fit_index == "NCP"){
           best_penalty = minimum_CV_NCP
-          reg_Model_ncp <- createRegModel_new(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_NCP,
+          reg_Model_ncp <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_NCP,
                                                 pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                 selectedS = selectedS)
           fit_reg_Model_ncp <- mxRun(reg_Model_ncp, silent = T)

@@ -1,5 +1,12 @@
 #' get FML values
 #'
+#'Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
+#'Computes FML values corresponding to the values reported in \pkg{regsem} for covariance based models
+#'
+#'@param regmodel already run regularized model
+#'@param use_unbiasedCov wheather to use the unbiased covariance; default is FALSE which is equivalent to regsem
+#'
+#'@export
 getFML <- function(regmodel, use_unbiasedCov = FALSE){
   expCov <- mxGetExpected(regmodel, component = "covariance", subname = "BaseModel")
   expMean <- mxGetExpected(regmodel, component = "means", subname = "BaseModel")

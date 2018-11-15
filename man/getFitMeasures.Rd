@@ -7,6 +7,17 @@
 getFitMeasures(regmodel, model_type = "mxModel", fitfun = "FIML",
   ncp_rmsea = FALSE, cvsample = NULL)
 }
+\arguments{
+\item{regmodel}{already run regularized model}
+
+\item{model_type}{specify the type of model provided: ctsem or mxModel}
+
+\item{fitfun}{fitfunction to be used in the fitting procedure. Either FML or FIML}
+
+\item{ncp_rmsea}{should rmsea and ncp be computed? Only possible for covariance based models}
+
+\item{cvsample}{mxData object with test sample data. Has to be of same data_type as the training data set}
+}
 \description{
-compute fit measures for laremm
+Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
 }

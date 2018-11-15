@@ -1,5 +1,17 @@
 #' compute fit measures for laremm
 #'
+#' Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
+#'
+#' @param regmodel already run regularized model
+#' @param model_type specify the type of model provided: ctsem or mxModel
+#' @param fitfun fitfunction to be used in the fitting procedure. Either FML or FIML
+#' @param ncp_rmsea should rmsea and ncp be computed? Only possible for covariance based models
+#' @param cvsample mxData object with test sample data. Has to be of same data_type as the training data set
+#'
+#' @export
+
+
+
 getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", ncp_rmsea = FALSE, cvsample = NULL){
 
   return_value <- data.frame("estimated_params" = NA, "mxAIC"= NA, "lavaan_AIC"= NA,
@@ -124,8 +136,28 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   # in sample RMSEA & ncp
   if(ncp_rmsea == TRUE){
     if(fitfun == "FIML"){
-      print("error: rmsea and ncp not supported for FIML")
-    }
+      print("rmsea and ncp not tested for FIML")
+      # step 1: get minus 2 LL
+      m2LL <- regmodel$BaseModel$fitfunction$result[1,1]
+      temp <- mxRun(new_model, useOptimizer = F, silent = T)
+
+      # step 2: get new df
+      df <- summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters
+
+      if(m2LL < df){
+        ncp_value <- 0
+        rmsea_value <- 0
+      }
+      else{
+        ncp_value <- (m2LL - df)/(nrow(regmodel$BaseModel$data$observed)-1)
+        rmsea_value <- sqrt(m2LL - df)/sqrt(df * (nrow(regmodel$BaseModel$data$observed)-1))
+      }
+      return_value$ncp <- ncp_value
+      return_value$rmsea <- rmsea_value}
+
+
+
+
     else if( fitfun == "FML"){
 
   # step 1: get FML equivalent to Jacobucci: .5*formula in Jacobucci_2016 without penalty
@@ -147,7 +179,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   }
   return_value$ncp <- ncp_value
   return_value$rmsea <- rmsea_value}
-  }
+}
   else{
     return_value$ncp <- NA
     return_value$rmsea <- NA}
@@ -161,7 +193,8 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
     return_value$CV_AIC <-AIC(fit_CVModel)
     return_value$CV_BIC <-BIC(fit_CVModel)
 
-    if(ncp_rmsea==TRUE & fitfun == "FML"){
+    if(ncp_rmsea==TRUE ){
+      if(fitfun == "FML"){
       CV_FitM <- getFML(fit_CVModel)
 
       # step 1: get FML equivalent to Jacobucci: .5*formula in Jacobucci_2016 without penalty
@@ -181,7 +214,27 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
       }
       return_value$CV_ncp <- CV_ncp
       return_value$CV_rmsea <- CV_rmsea}
-    else if(ncp_rmsea!=TRUE || fitfun != "FML"){
+      else if(fitfun == "FIML"){
+        print("rmsea and ncp not tested for FIML")
+        # step 1: get minus 2 LL
+        m2LL <- fit_CVModel$fitfunction$result[1,1]
+
+
+        # step 2: get new df
+        df <- summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters
+
+        if(m2LL < df){
+          ncp_value <- 0
+          rmsea_value <- 0
+        }
+        else{
+          ncp_value <- (m2LL - df)/(nrow(fit_CVModel$data$observed)-1)
+          rmsea_value <- sqrt(m2LL - df)/sqrt(df * (nrow(fit_CVModel$data$observed)-1))
+        }
+
+
+      }}
+    else if(ncp_rmsea!=TRUE){
       return_value$CV_ncp <- NA
       return_value$CV_rmsea <- NA}
   }
