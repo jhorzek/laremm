@@ -137,7 +137,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
   # in sample RMSEA & ncp
   if(ncp_rmsea == TRUE){
     if(fitfun == "FIML"){
-      print("rmsea and ncp not tested for FIML")
+      #print("rmsea and ncp not tested for FIML")
       ## step 1: get saturated  model
       satmod <- satmod
       #get minus 2 LL
@@ -226,7 +226,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
       return_value$CV_ncp <- CV_ncp
       return_value$CV_rmsea <- CV_rmsea}
       else if(fitfun == "FIML"){
-        print("rmsea and ncp not tested for FIML")
+        #print("rmsea and ncp not tested for FIML")
         ## step 1: get saturated  model
         cv_satmod <- cv_satmod
         # step 1: get minus 2 LL
@@ -245,12 +245,12 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
         df <- df_cv- df_sat
 
         if(chisq < df){
-          ncp_value <- 0
-          rmsea_value <- 0
+          CV_ncp <- 0
+          CV_rmsea <- 0
         }
         else{
-          ncp_value <- (chisq - df)/(nrow(fit_CVModel$data$observed)-1)
-          rmsea_value <- sqrt(chisq - df)/sqrt(df * (nrow(fit_CVModel$data$observed)-1))
+          CV_ncp <- (chisq - df)/(nrow(fit_CVModel$data$observed)-1)
+          CV_rmsea <- sqrt(chisq - df)/sqrt(df * (nrow(fit_CVModel$data$observed)-1))
         }
         return_value$CV_ncp <- CV_ncp
         return_value$CV_rmsea <- CV_rmsea}

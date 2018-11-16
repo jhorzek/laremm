@@ -19,6 +19,8 @@
 #' @param selectedS S values to regularize. Possible are "all", or providing a matrix of the same size as the S matrix with ones for every parameter to regularize and 0 for every non-regularized parameter
 #' @param fit_index which fit index should be used to find the best model? Possible are AIC and BIC. RMSEA and NCP for covariance based models
 #' @param ncp_rmsea should rmsea and ncp be computed? Only possible for covariance based models
+#' @param satmod saturated model. necessary for computation of ncp and rmsea in FIML models. In many cases, the OpenMx mxRefModels(model, run =TURE) function can be used to build this saturated model. Make sure to only provide the fitted saturated model, not the indipendence model
+#' @param cv_satmod saturated model for cross validation. This model has to be based on the cv sample
 #' @param CV should a cross validation be computed? If TRUE, provide a Test_Sample
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
 #'
@@ -29,7 +31,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
                          pen_start = 0, pen_end = 1, pen_stepsize = .01,
                          fit_index = "BIC",
                          ncp_rmsea =FALSE,
+                         satmod = NULL,
                          CV = FALSE,
+                         cv_satmod = NULL,
                          Test_Sample = NULL){
   # in future:
   #, selectedLambda = "none",
@@ -59,7 +63,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     fit_reg_Model <- mxRun(reg_Model, silent = T) # run Model; starting values can be very critical as the model tends to get stuck in local minima either close to the model parameters without penalty or all parameters set to 0
 
     ### compute AIC and BIC:
-    FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, ncp_rmsea = ncp_rmsea,  model_type = model_type, cvsample = NULL)
+    FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, ncp_rmsea = ncp_rmsea,  model_type = model_type, cvsample = NULL, satmod = satmod, cv_satmod = cv_satmod)
 
     results["estimated_Parameters",counter] <- FitM$estimated_params # estimated parameters
     results["mx_train_AIC",counter] <- FitM$mxAIC # mxAIC
@@ -156,7 +160,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         fit_train_reg_Model <- mxRun(train_reg_Model, silent = T) # run Model; starting values can be very critical as the model tends to get stuck in local minima either close to the model parameters without penalty or all parameters set to 0
 
         ### compute AIC and BIC:
-        FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, ncp_rmsea = ncp_rmsea, cvsample = Test_Sample)
+        FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, ncp_rmsea = ncp_rmsea, cvsample = Test_Sample, satmod = satmod, cv_satmod = cv_satmod)
 
         results["estimated_Parameters",counter] <- FitM$estimated_params # estimated parameters
         results["mx_train_AIC",counter] <- FitM$mxAIC # mxAIC

@@ -182,6 +182,8 @@ createRegModel <- function(model, model_type = "ctsem", fitfun = "FIML", data_ty
                       regfit_algebra,
                       regfit_fun
   )
+  outModel <- mxOption(outModel, "Calculate Hessian", "No")
+  outModel <- mxOption(outModel, "Standard Errors", "No")
 
   # return model
   return(outModel)
