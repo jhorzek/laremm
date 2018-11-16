@@ -46,9 +46,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
   if(CV == FALSE){
   # matrix for results:
-  results <- matrix(NA, nrow = 8, ncol = length(pen_values))
+  results <- matrix(NA, nrow = 10, ncol = length(pen_values))
   rownames(results) <- c("penalty", "estimated_Parameters", "mx_train_AIC","lav_train_AIC",
-                         "mx_train_BIC", "lav_train_BIC","RMSEA", "NCP")
+                         "mx_train_BIC", "lav_train_BIC","RMSEA", "NCP",
+                         "negative_Variances","convergence")
   counter <- 1
 
   # computation:
@@ -61,6 +62,16 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     reg_Model <- mxOption(reg_Model, "Calculate Hessian", "No") # might cause errors; check
     reg_Model <- mxOption(reg_Model, "Standard Errors", "No") # might cause errors; check
     fit_reg_Model <- mxRun(reg_Model, silent = T) # run Model; starting values can be very critical as the model tends to get stuck in local minima either close to the model parameters without penalty or all parameters set to 0
+
+    results["convergence",counter] <- fit_reg_Model$output$status$code# check convergence
+
+    variances = diag(nrow(fit_reg_Model$BaseModel$S$values))==1
+
+    if(any(fit_reg_Model$BaseModel$S$values[variances] <0)){
+      results["negative_Variances",counter] <- 1 # check negative variances
+    }else(
+      results["negative_Variances",counter] <- 0
+    )
 
     ### compute AIC and BIC:
     FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, ncp_rmsea = ncp_rmsea,  model_type = model_type, cvsample = NULL, satmod = satmod, cv_satmod = cv_satmod)
@@ -78,16 +89,18 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   }
 
   # Find Minima / best penalty value
+  convergeSubset <- (results["convergence",] == 0) == (results["negative_Variances",]==0)
+  convergeSubset <- results[,convergeSubset]
 
-  minimum_mxAIC <- results[1,which(results["mx_train_AIC",]==min(as.numeric(results["mx_train_AIC",])))]
-  minimum_lavAIC <- results[1,which(results["lav_train_AIC",]==min(as.numeric(results["lav_train_AIC",])))] # ?quivalent zu minimalem AIC von regsem
+  minimum_mxAIC <- convergeSubset[1,which(convergeSubset["mx_train_AIC",]==min(as.numeric(convergeSubset["mx_train_AIC",])))]
+  minimum_lavAIC <- convergeSubset[1,which(convergeSubset["lav_train_AIC",]==min(as.numeric(convergeSubset["lav_train_AIC",])))] # ?quivalent zu minimalem AIC von regsem
 
 
-  minimum_mxBIC <- results[1,which(results["mx_train_BIC",]==min(results["mx_train_BIC",]))]
-  minimum_lavBIC <- results[1,which(results["lav_train_BIC",]==min(results["lav_train_BIC",]))] # ?quivalent zu minimalem BIC von regsem!!
+  minimum_mxBIC <- convergeSubset[1,which(convergeSubset["mx_train_BIC",]==min(convergeSubset["mx_train_BIC",]))]
+  minimum_lavBIC <- convergeSubset[1,which(convergeSubset["lav_train_BIC",]==min(convergeSubset["lav_train_BIC",]))] # ?quivalent zu minimalem BIC von regsem!!
 
-  minimum_Rmsea <- results[1,which(results["RMSEA",]==min(results["RMSEA",]))] # ?quivalent zu minimalem BIC von regsem!!
-  minimum_Ncp <- results[1,which(results["NCP",]==min(results["NCP",]))] # ?quivalent zu minimalem BIC von regsem!!
+  minimum_Rmsea <- convergeSubset[1,which(convergeSubset["RMSEA",]==min(convergeSubset["RMSEA",]))] # ?quivalent zu minimalem BIC von regsem!!
+  minimum_Ncp <- convergeSubset[1,which(convergeSubset["NCP",]==min(convergeSubset["NCP",]))] # ?quivalent zu minimalem BIC von regsem!!
 
 
   # getting parameters:
@@ -96,7 +109,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxAIC,
                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                   selectedS = selectedS)
-  fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
+  reg_Model_AIC <- mxOption(reg_Model_AIC, "Calculate Hessian", "No") # might cause errors; check
+  reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
+
   fit_reg_Model_AIC <- mxRun(reg_Model_AIC, silent = T)
   out <- list("best_penalty" = minimum_mxAIC, "bestmodel" = fit_reg_Model_AIC, "fit_measures" = results)
   }
@@ -106,6 +121,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_mxBIC,
                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                   selectedS = selectedS)
+  reg_Model_BIC <- mxOption(reg_Model_BIC, "Calculate Hessian", "No") # might cause errors; check
+  reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
+
   fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
   out <- list("best_penalty" = minimum_mxBIC, "bestmodel" = fit_reg_Model_BIC, "fit_measures" = results)
   }
@@ -115,6 +133,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   reg_Model_rmsea <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Rmsea,
                                     pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                     selectedS = selectedS)
+  reg_Model_rmsea <- mxOption(reg_Model_rmsea, "Calculate Hessian", "No") # might cause errors; check
+  reg_Model_rmsea <- mxOption(reg_Model_rmsea, "Standard Errors", "No") # might cause errors; check
+
   fit_reg_Model_rmsea <- mxRun(reg_Model_rmsea, silent = T)
   out <- list("best_penalty" = minimum_Rmsea, "bestmodel" = fit_reg_Model_rmsea, "fit_measures" = results)
   }
@@ -124,6 +145,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     reg_Model_ncp <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_Ncp,
                                           pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                           selectedS = selectedS)
+    reg_Model_ncp <- mxOption(reg_Model_ncp, "Calculate Hessian", "No") # might cause errors; check
+    reg_Model_ncp <- mxOption(reg_Model_ncp, "Standard Errors", "No") # might cause errors; check
+
     fit_reg_Model_ncp <- mxRun(reg_Model_ncp, silent = T)
     out <- list("best_penalty" = minimum_Rmsea, "bestmodel" = fit_reg_Model_ncp, "fit_measures" = results)
   }
@@ -136,14 +160,15 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     if(CV == TRUE){
       if(is.null(Test_Sample)){
         print("Error: Please provide Test Samples as mxData sets.")
-        break
+
       }
       # assumes that the sample given in model is the train data and tests it against the provided test data
 
         # matrix for results:
-        results <- matrix(NA, nrow = 13, ncol = length(pen_values))
+        results <- matrix(NA, nrow = 15, ncol = length(pen_values))
         rownames(results) <- c("penalty", "estimated_Parameters", "mx_train_AIC","lav_train_AIC",
-                               "mx_train_BIC", "lav_train_BIC","RMSEA","NCP", "CV_m2LL", "CV_AIC","CV_BIC", "CV_RMSEA","CV_NCP")
+                               "mx_train_BIC", "lav_train_BIC","RMSEA","NCP", "CV_m2LL", "CV_AIC","CV_BIC", "CV_RMSEA","CV_NCP",
+                               "negative_Variances","convergence")
         counter <- 1
         pb <- txtProgressBar(min = pen_start, max = pen_end, style = 3) # progress-bar
       for(i in pen_values){
@@ -158,6 +183,16 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         train_reg_Model <- mxOption(train_reg_Model, "Calculate Hessian", "No") # might cause errors; check
         train_reg_Model <- mxOption(train_reg_Model, "Standard Errors", "No") # might cause errors; check
         fit_train_reg_Model <- mxRun(train_reg_Model, silent = T) # run Model; starting values can be very critical as the model tends to get stuck in local minima either close to the model parameters without penalty or all parameters set to 0
+
+        results["convergence",counter] <- fit_train_reg_Model$output$status$code# check convergence
+
+        variances = diag(nrow(fit_train_reg_Model$BaseModel$S$values))==1
+
+        if(any(fit_train_reg_Model$BaseModel$S$values[variances] <0)){
+          results["negative_Variances",counter] <- 1 # check negative variances
+        }else(
+          results["negative_Variances",counter] <- 0
+        )
 
         ### compute AIC and BIC:
         FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, ncp_rmsea = ncp_rmsea, cvsample = Test_Sample, satmod = satmod, cv_satmod = cv_satmod)
@@ -182,23 +217,26 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
       }
 
         ## search best penalty values:
+        convergeSubset <- (results["convergence",] == 0) == (results["negative_Variances",]==0)
+        convergeSubset <- results[,convergeSubset]
+
         # train set
-        minimum_train_mxAIC <- results[1,which(results["mx_train_AIC",]==min(as.numeric(results["mx_train_AIC",])))]
-        minimum_train_lavAIC <- results[1,which(results["lav_train_AIC",]==min(as.numeric(results["lav_train_AIC",])))] # ?quivalent zu minimalem AIC von regsem?
+        minimum_train_mxAIC <- convergeSubset[1,which(convergeSubset["mx_train_AIC",]==min(as.numeric(convergeSubset["mx_train_AIC",])))]
+        minimum_train_lavAIC <- convergeSubset[1,which(convergeSubset["lav_train_AIC",]==min(as.numeric(convergeSubset["lav_train_AIC",])))] # ?quivalent zu minimalem AIC von regsem?
 
 
-        minimum_train_mxBIC <- results[1,which(results["mx_train_BIC",]==min(results["mx_train_BIC",]))]
-        minimum_train_lavBIC <- results[1,which(results["lav_train_BIC",]==min(results["lav_train_BIC",]))] # ?quivalent zu minimalem BIC von regsem!!
+        minimum_train_mxBIC <- convergeSubset[1,which(convergeSubset["mx_train_BIC",]==min(convergeSubset["mx_train_BIC",]))]
+        minimum_train_lavBIC <- convergeSubset[1,which(convergeSubset["lav_train_BIC",]==min(convergeSubset["lav_train_BIC",]))] # ?quivalent zu minimalem BIC von regsem!!
 
-        minimum_Rmsea <- results[1,which(results["RMSEA",]==min(results["RMSEA",]))] # ?quivalent zu minimalem BIC von regsem!!
-        minimum_Ncp <- results[1,which(results["NCP",]==min(results["NCP",]))] # ?quivalent zu minimalem BIC von regsem!!
+        minimum_Rmsea <- convergeSubset[1,which(convergeSubset["RMSEA",]==min(convergeSubset["RMSEA",]))] # ?quivalent zu minimalem BIC von regsem!!
+        minimum_Ncp <- convergeSubset[1,which(convergeSubset["NCP",]==min(convergeSubset["NCP",]))] # ?quivalent zu minimalem BIC von regsem!!
 
         # CV
-        minimum_CVm2LL <- results[1,which(results["CV_m2LL",]==min(results["CV_m2LL",]))]
-        minimum_CV_AIC <- results[1,which(results["CV_AIC",]==min(results["CV_AIC",]))]
-        minimum_CV_BIC <- results[1,which(results["CV_BIC",]==min(results["CV_BIC",]))]
-        minimum_CV_RMSEA <- results[1,which(results["CV_RMSEA",]==min(results["CV_RMSEA",]))]
-        minimum_CV_NCP <- results[1,which(results["CV_NCP",]==min(results["CV_NCP",]))]
+        minimum_CVm2LL <- convergeSubset[1,which(convergeSubset["CV_m2LL",]==min(convergeSubset["CV_m2LL",]))]
+        minimum_CV_AIC <- convergeSubset[1,which(convergeSubset["CV_AIC",]==min(convergeSubset["CV_AIC",]))]
+        minimum_CV_BIC <- convergeSubset[1,which(convergeSubset["CV_BIC",]==min(convergeSubset["CV_BIC",]))]
+        minimum_CV_RMSEA <- convergeSubset[1,which(convergeSubset["CV_RMSEA",]==min(convergeSubset["CV_RMSEA",]))]
+        minimum_CV_NCP <- convergeSubset[1,which(convergeSubset["CV_NCP",]==min(convergeSubset["CV_NCP",]))]
 
 
         # getting parameters:
@@ -207,6 +245,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_CV_m2LL <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CVm2LL,
                                                   pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                   selectedS = selectedS)
+          reg_Model_CV_m2LL <- mxOption(reg_Model_CV_m2LL, "Calculate Hessian", "No") # might cause errors; check
+          reg_Model_CV_m2LL <- mxOption(reg_Model_CV_m2LL, "Standard Errors", "No") # might cause errors; check
+
           fit_reg_Model_CV_m2LL <- mxRun(reg_Model_CV_m2LL, silent = T)
           out <- list("best_penalty" = minimum_CVm2LL, "bestmodel" = fit_reg_Model_CV_m2LL, "fit_measures" = results)
         }
@@ -216,6 +257,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_AIC,
                                               pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                               selectedS = selectedS)
+          reg_Model_AIC <- mxOption(reg_Model_AIC, "Calculate Hessian", "No") # might cause errors; check
+          reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
+
           fit_reg_Model_AIC <- mxRun(reg_Model_AIC, silent = T)
           out <- list("best_penalty" = minimum_CV_AIC, "bestmodel" = fit_reg_Model_AIC, "fit_measures" = results)
         }
@@ -225,6 +269,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_BIC,
                                               pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                               selectedS = selectedS)
+          reg_Model_BIC <- mxOption(reg_Model_BIC, "Calculate Hessian", "No") # might cause errors; check
+          reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
+
           fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
           out <- list("best_penalty" = minimum_CV_BIC, "bestmodel" = fit_reg_Model_BIC, "fit_measures" = results)
         }
@@ -234,6 +281,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_rmsea <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_RMSEA,
                                                 pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                 selectedS = selectedS)
+          reg_Model_rmsea <- mxOption(reg_Model_rmsea, "Calculate Hessian", "No") # might cause errors; check
+          reg_Model_rmsea <- mxOption(reg_Model_rmsea, "Standard Errors", "No") # might cause errors; check
+
           fit_reg_Model_rmsea <- mxRun(reg_Model_rmsea, silent = T)
           out <- list("best_penalty" = minimum_CV_RMSEA, "bestmodel" = fit_reg_Model_rmsea, "fit_measures" = results)
         }
@@ -242,6 +292,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_ncp <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = minimum_CV_NCP,
                                                 pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
                                                 selectedS = selectedS)
+          reg_Model_ncp <- mxOption(reg_Model_ncp, "Calculate Hessian", "No") # might cause errors; check
+          reg_Model_ncp <- mxOption(reg_Model_ncp, "Standard Errors", "No") # might cause errors; check
+
           fit_reg_Model_ncp <- mxRun(reg_Model_ncp, silent = T)
           out <- list("best_penalty" = minimum_CV_NCP, "bestmodel" = fit_reg_Model_ncp, "fit_measures" = results)
         }
