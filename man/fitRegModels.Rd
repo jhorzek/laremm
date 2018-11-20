@@ -9,7 +9,7 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
   selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
   selectedS = "none", pen_start = 0, pen_end = 1,
   pen_stepsize = 0.01, fit_index = "BIC", ncp_rmsea = FALSE,
-  CV = FALSE, Test_Sample = NULL)
+  satmod = NULL, CV = FALSE, cv_satmod = NULL, Test_Sample = NULL)
 }
 \arguments{
 \item{model}{mxModel or ctsem object}
@@ -40,7 +40,11 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 
 \item{ncp_rmsea}{should rmsea and ncp be computed? Only possible for covariance based models}
 
+\item{satmod}{saturated model. necessary for computation of ncp and rmsea in FIML models. In many cases, the OpenMx mxRefModels(model, run =TURE) function can be used to build this saturated model. Make sure to only provide the fitted saturated model, not the indipendence model}
+
 \item{CV}{should a cross validation be computed? If TRUE, provide a Test_Sample}
+
+\item{cv_satmod}{saturated model for cross validation. This model has to be based on the cv sample}
 
 \item{Test_Sample}{mxData object with test sample data. Has to be of same data_type as the training data set}
 
@@ -51,4 +55,45 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 \description{
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
 fitregModels creates a regularized model from a mxModel or ctsem. It then runs this model with multiple penalty values.
+}
+\examples{
+# The following example is taken from the regsem help to demonstrate the equivalence of both methods:
+
+library(lavaan)
+# put variables on same scale for regsem
+HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
+
+# define variables:
+latent = c("f1")
+manifest = c("x1","x2","x3","x4","x5", "x6", "x7", "x8", "x9")
+
+# define paths:
+loadings <- mxPath(from = latent, to = manifest, free = c(F,T,T,T,T,T,T,T,T), values = 1)
+lcov <- mxPath(from = latent, arrows = 2, free = T, values = 1)
+lmanif <- mxPath(from = manifest, arrows =2 , free =T, values = 1)
+
+# define model:
+myModel <- mxModel(name = "myModel", latentVars = latent, manifestVars = manifest, type = "RAM",
+                   mxData(observed = HS, type = "raw"), loadings, lcov, lmanif,
+                   mxPath(from = "one", to = manifest, free = T)
+                  )
+
+fit_myModel <- mxRun(myModel)
+summary(fit_myModel)
+
+# create regularized model:
+
+selectedA <- matrix(0, ncol = ncol(fit_myModel$A$values), nrow = nrow(fit_myModel$A$values))
+selectedA[c(2,3,7,8,9),10] <-1
+
+
+reg_model <- fitRegModels(model = fit_myModel, model_type = "mxModel", fitfun = "FIML",
+                          pen_on = "A", selectedA = selectedA,
+                          pen_start = 0, pen_end = .05, pen_stepsize = .01,
+                          ncp_rmsea = F
+                          )
+summary(reg_model$bestmodel)
+
+round(reg_model$fit_measures,5)
+
 }

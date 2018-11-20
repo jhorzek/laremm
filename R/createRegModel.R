@@ -16,6 +16,45 @@
 #' @param selectedA A values to regularize. Possible are "all", or providing a matrix of the same size as the A matrix with ones for every parameter to regularize and 0 for every non-regularized parameter
 #' @param selectedS S values to regularize. Possible are "all", or providing a matrix of the same size as the S matrix with ones for every parameter to regularize and 0 for every non-regularized parameter
 #'
+#' @examples
+#' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
+#'
+#' library(lavaan)
+#' # put variables on same scale for regsem
+#' HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
+#'
+#' # define variables:
+#' latent = c("f1")
+#' manifest = c("x1","x2","x3","x4","x5", "x6", "x7", "x8", "x9")
+#'
+#' # define paths:
+#' loadings <- mxPath(from = latent, to = manifest, free = c(F,T,T,T,T,T,T,T,T), values = 1)
+#' lcov <- mxPath(from = latent, arrows = 2, free = T, values = 1)
+#' lmanif <- mxPath(from = manifest, arrows =2 , free =T, values = 1)
+#'
+#' # define model:
+#' myModel <- mxModel(name = "myModel", latentVars = latent, manifestVars = manifest, type = "RAM",
+#'                    mxData(observed = HS, type = "raw"), loadings, lcov, lmanif,
+#'                    mxPath(from = "one", to = manifest, free = T)
+#'                   )
+#'
+#' fit_myModel <- mxRun(myModel)
+#' summary(fit_myModel)
+#'
+#' # create regularized model:
+#'
+#' selectedA <- matrix(0, ncol = ncol(fit_myModel$A$values), nrow = nrow(fit_myModel$A$values))
+#' selectedA[c(2,3,7,8,9),10] <-1
+#'
+#'
+#' reg_model <- createRegModel(model = fit_myModel, model_type = "mxModel", fitfun = "FIML", data_type = "raw",
+#'                            pen_on = "A", selectedA = selectedA, pen_value = .05
+#'                            )
+#' fit_reg_model <- mxRun(reg_model)
+#' summary(fit_reg_model)
+#'
+#' round(reg_model$fit_measures,5)
+#'
 #' @export
 
 

@@ -23,6 +23,45 @@
 #' @param cv_satmod saturated model for cross validation. This model has to be based on the cv sample
 #' @param CV should a cross validation be computed? If TRUE, provide a Test_Sample
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
+#' @examples
+#' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
+#'
+#' library(lavaan)
+#' # put variables on same scale for regsem
+#' HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
+#'
+#' # define variables:
+#' latent = c("f1")
+#' manifest = c("x1","x2","x3","x4","x5", "x6", "x7", "x8", "x9")
+#'
+#' # define paths:
+#' loadings <- mxPath(from = latent, to = manifest, free = c(F,T,T,T,T,T,T,T,T), values = 1)
+#' lcov <- mxPath(from = latent, arrows = 2, free = T, values = 1)
+#' lmanif <- mxPath(from = manifest, arrows =2 , free =T, values = 1)
+#'
+#' # define model:
+#' myModel <- mxModel(name = "myModel", latentVars = latent, manifestVars = manifest, type = "RAM",
+#'                    mxData(observed = HS, type = "raw"), loadings, lcov, lmanif,
+#'                    mxPath(from = "one", to = manifest, free = T)
+#'                   )
+#'
+#' fit_myModel <- mxRun(myModel)
+#' summary(fit_myModel)
+#'
+#' # create regularized model:
+#'
+#' selectedA <- matrix(0, ncol = ncol(fit_myModel$A$values), nrow = nrow(fit_myModel$A$values))
+#' selectedA[c(2,3,7,8,9),10] <-1
+#'
+#'
+#' reg_model <- fitRegModels(model = fit_myModel, model_type = "mxModel", fitfun = "FIML",
+#'                           pen_on = "A", selectedA = selectedA,
+#'                           pen_start = 0, pen_end = .05, pen_stepsize = .01,
+#'                           ncp_rmsea = F
+#'                           )
+#' summary(reg_model$bestmodel)
+#'
+#' round(reg_model$fit_measures,5)
 #'
 #' @export
 #'
