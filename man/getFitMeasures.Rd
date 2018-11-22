@@ -15,7 +15,7 @@ getFitMeasures(regmodel, model_type = "mxModel", fitfun = "FIML",
 
 \item{fitfun}{fitfunction to be used in the fitting procedure. Either FML or FIML}
 
-\item{ncp_rmsea}{should rmsea and ncp be computed? Only possible for covariance based models}
+\item{ncp_rmsea}{should rmsea and ncp be computed? For FIML, please provide a saturated model}
 
 \item{cvsample}{mxData object with test sample data. Has to be of same data_type as the training data set}
 

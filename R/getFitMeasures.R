@@ -5,7 +5,7 @@
 #' @param regmodel already run regularized model
 #' @param model_type specify the type of model provided: ctsem or mxModel
 #' @param fitfun fitfunction to be used in the fitting procedure. Either FML or FIML
-#' @param ncp_rmsea should rmsea and ncp be computed? Only possible for covariance based models
+#' @param ncp_rmsea should rmsea and ncp be computed? For FIML, please provide a saturated model
 #' @param cvsample mxData object with test sample data. Has to be of same data_type as the training data set
 #' @param satmod saturated model. necessary for computation of ncp and rmsea in FIML models. In many cases, the OpenMx mxRefModels(model, run =TURE) function can be used to build this saturated model. Make sure to only provide the fitted saturated model, not the indipendence model
 #' @param cv_satmod saturated model for cross validation. This model has to be based on the cv sample

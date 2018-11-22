@@ -4,7 +4,12 @@ Title: LASSO Regularization in mxModels
 Version: 0.1.0
 Author: Jannik Orzek
 Maintainer: <orzekjan@hu-berlin.de>
-Description: This package performs LASSO regularization in mxModels creteated with the OpenMx package. I develop the package for my master thesis and it is based on the the regsem - package by Dr. Ross Jacobucci. As laremm is still under development, I recommended to use regsem instead of laremm if you want to perform regularization in Structural Equation Modeling.
+Description: This package performs LASSO regularization in mxModels 
+    creteated with the OpenMx package. I develop the package for my 
+    master thesis and it is based on the the regsem - package by 
+    Dr. Ross Jacobucci. As laremm is still under development, I 
+    recommended to use regsem instead of laremm if you want to 
+    perform regularization in Structural Equation Modeling.
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
