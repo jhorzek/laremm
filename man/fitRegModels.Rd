@@ -60,6 +60,7 @@ fitregModels creates a regularized model from a mxModel or ctsem. It then runs t
 # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 
 library(lavaan)
+library(OpenMx)
 # put variables on same scale for regsem
 HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
 
@@ -95,5 +96,80 @@ reg_model <- fitRegModels(model = fit_myModel, model_type = "mxModel", fitfun = 
 summary(reg_model$bestmodel)
 
 round(reg_model$fit_measures,5)
+
+### use laremm in ctsem ####
+library(ctsem)
+
+set.seed(12)
+
+## define the population model:
+
+# set the drift matrix. Note that drift eta_1_eta2 is set to equal 0 in the population.
+ct_drift <- matrix(c(-.3,.2,0,-.5), ncol = 2)
+
+generatingModel<-ctModel(Tpoints=10,n.latent=2,n.TDpred=0,n.TIpred=0,n.manifest=2,
+                        MANIFESTVAR=diag(0,2),
+                        LAMBDA=diag(1,2),
+                        DRIFT=ct_drift,
+                        DIFFUSION=matrix(c(.5,0,0,.5),2),
+                        CINT=matrix(c(0,0),nrow=2),
+                        T0MEANS=matrix(0,ncol=1,nrow=2),
+                        T0VAR=diag(1,2))
+
+# simulate a training data set
+traindata <- ctGenerate(generatingModel,n.subjects = 100)
+
+## Build the analysis model. Note that drift eta1_eta2 is freely estimated
+# although it is 0 in the population.
+
+myModel <- ctModel(Tpoints=10,n.latent=2,n.TDpred=0,n.TIpred=0,n.manifest=2,
+                  LAMBDA=diag(1,2),
+                  MANIFESTVAR=diag(0,2),
+                  CINT=matrix(c(0,0),nrow=2),
+                  DIFFUSION=matrix(c('eta1_eta1',0,0,'eta2_eta2'),2),
+                  T0MEANS=matrix(0,ncol=1,nrow=2),
+                  T0VAR=diag(1,2))
+
+# fit the model using ctsem:
+fit_myModel <- ctFit(traindata, myModel)
+summary(fit_myModel)
+
+# regularize the model:
+library(laremm)
+
+# start regularization:
+reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
+                           fitfun = "FIML",data_type = "raw",
+                           pen_on = "DRIFT", selectedDrifts = "cross",
+                           pen_start = 0, pen_end = 1, pen_stepsize = .1)
+
+# show the best value for penalty term (tuning parameter):
+reg_myModel$best_penalty
+
+# show summary of parameters:
+summary(reg_myModel$bestmodel)
+
+#### additional Cross - validation: #####
+set.seed(15)
+#simulate new dataset from same population:
+testdata <- ctGenerate(generatingModel,n.subjects = 100)
+# note: ctsem renames the rows and columns when fitting a model. To get
+# the right names, we fit the ctsem model with the new dataset and then extract
+# the dataset, where rows and columns have now been renamed
+
+fit_myModel <- ctFit(testdata, myModel, useOptimizer = F)
+testdata <- fit_myModel$mxobj$data
+
+# fit models with cross-validation:
+cv_reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
+                              fitfun = "FIML",data_type = "raw",pen_on = "DRIFT",
+                              selectedDrifts = "cross", pen_start = 0,
+                              pen_end = 1, pen_stepsize = .1, CV = TRUE,
+                              Test_Sample = testdata)
+# show the best value for penalty term (tuning parameter):
+cv_reg_myModel$best_penalty
+# show summary of parameters:
+summary(cv_reg_myModel$bestmodel)
+
 
 }

@@ -20,6 +20,7 @@
 #' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 #'
 #' library(lavaan)
+#' library(OpenMx)
 #' # put variables on same scale for regsem
 #' HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
 #'
