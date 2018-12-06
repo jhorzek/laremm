@@ -148,7 +148,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
 
       # get new df of regularized model:
       temp <- mxRun(new_model, useOptimizer = F, silent = T)
-      df_reg <- summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters
+      df_reg <- suppressWarnings(summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters)
 
       # get df of saturated model:
       df_sat <- summary(satmod)$degreesOfFreedom
@@ -176,7 +176,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
 
   # step 2: get new df:
   temp <- mxRun(new_model, useOptimizer = F, silent = T)
-  df <- summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters
+  df <- suppressWarnings(summary(temp$BaseModel)$observedStatistics - summary(temp$BaseModel)$estimatedParameters)
 
   # step 3: compute rmsea and ncp:
 
@@ -212,7 +212,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
       CV_half_FML <- CV_FitM[1,1]
 
       # step 2: get new df:
-      df <- summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters
+      df <- suppressWarnings(summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters)
 
       # step 3: compute rmsea and ncp:
       if(half_FML*2*fit_CVModel$BaseModel$data$numObs < df){
@@ -238,7 +238,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", n
 
         # get new df of regularized model:
 
-        df_cv <- summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters
+        df_cv <- suppressWarnings(summary(fit_CVModel$BaseModel)$observedStatistics - summary(fit_CVModel$BaseModel)$estimatedParameters)
         # get df of saturated model:
         df_sat <- summary(cv_satmod)$degreesOfFreedom
         # compute df
