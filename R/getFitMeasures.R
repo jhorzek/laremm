@@ -68,7 +68,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", c
   }else if(fitfun == "FIML"){
 
     # compute the m2LogL:
-    return_value$m2LL <- regmodel$BaseModel$output$Minus2LogLikelihood
+    return_value$m2LL <- regmodel$BaseModel$fitfunction$result[[1]]
 
   }
 
@@ -114,7 +114,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", c
         CVModel <- EstimatedParam$new_model
         CVModel$data <- cvsample
         fit_CVModel <- mxRun(CVModel, useOptimizer = F, silent = T)
-        return_value$CV.m2LL <- fit_CVModel$output$Minus2LogLikelihood
+        return_value$CV.m2LL <- fit_CVModel$fitfunction$result[[1]]
       }
     }
 

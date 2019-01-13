@@ -2,14 +2,14 @@
 % Please edit documentation in R/fitRegModels.R
 \name{fitRegModels}
 \alias{fitRegModels}
-\title{fitregModels}
+\title{fitRegModels}
 \usage{
 fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
   data_type = "raw", pen_type = "lasso", pen_on = "none",
   selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
   selectedS = "none", pen_start = 0, pen_end = 1,
-  pen_stepsize = 0.01, fit_index = "BIC", ncp_rmsea = FALSE,
-  satmod = NULL, CV = FALSE, cv_satmod = NULL, Test_Sample = NULL)
+  pen_stepsize = 0.01, fit_index = "BIC", CV = FALSE,
+  Test_Sample = NULL)
 }
 \arguments{
 \item{model}{mxModel or ctsem object}
@@ -36,15 +36,9 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 
 \item{pen_stepsize}{increse of penalty with each iteration. e.g. if pen_start = 0, pen_end = 1, pen_stepsize = .1, fitRegModels will iterate over pen = 0, pen = .1, pen = .2, ...}
 
-\item{fit_index}{which fit index should be used to find the best model? Possible are AIC and BIC. RMSEA and NCP for covariance based models}
-
-\item{ncp_rmsea}{should rmsea and ncp be computed? Only possible for covariance based models}
-
-\item{satmod}{saturated model. necessary for computation of ncp and rmsea in FIML models. In many cases, the OpenMx mxRefModels(model, run =TURE) function can be used to build this saturated model. Make sure to only provide the fitted saturated model, not the indipendence model}
+\item{fit_index}{which fit index should be used to find the best model? Possible are AIC and BIC, CV_m2LL, CV_AIC, CV_BIC}
 
 \item{CV}{should a cross validation be computed? If TRUE, provide a Test_Sample}
-
-\item{cv_satmod}{saturated model for cross validation. This model has to be based on the cv sample}
 
 \item{Test_Sample}{mxData object with test sample data. Has to be of same data_type as the training data set}
 
@@ -77,7 +71,7 @@ lmanif <- mxPath(from = manifest, arrows =2 , free =T, values = 1)
 myModel <- mxModel(name = "myModel", latentVars = latent, manifestVars = manifest, type = "RAM",
                    mxData(observed = HS, type = "raw"), loadings, lcov, lmanif,
                    mxPath(from = "one", to = manifest, free = T)
-                  )
+)
 
 fit_myModel <- mxRun(myModel)
 summary(fit_myModel)
@@ -90,12 +84,10 @@ selectedA[c(2,3,7,8,9),10] <-1
 
 reg_model <- fitRegModels(model = fit_myModel, model_type = "mxModel", fitfun = "FIML",
                           pen_on = "A", selectedA = selectedA,
-                          pen_start = 0, pen_end = .05, pen_stepsize = .01,
-                          ncp_rmsea = F
+                          pen_start = 0, pen_end = .05, pen_stepsize = .01
                           )
 summary(reg_model$bestmodel)
-
-round(reg_model$fit_measures,5)
+reg_model$`fit measures`
 
 ### use laremm in ctsem ####
 library(ctsem)
@@ -108,13 +100,13 @@ set.seed(12)
 ct_drift <- matrix(c(-.3,.2,0,-.5), ncol = 2)
 
 generatingModel<-ctModel(Tpoints=10,n.latent=2,n.TDpred=0,n.TIpred=0,n.manifest=2,
-                        MANIFESTVAR=diag(0,2),
-                        LAMBDA=diag(1,2),
-                        DRIFT=ct_drift,
-                        DIFFUSION=matrix(c(.5,0,0,.5),2),
-                        CINT=matrix(c(0,0),nrow=2),
-                        T0MEANS=matrix(0,ncol=1,nrow=2),
-                        T0VAR=diag(1,2))
+                         MANIFESTVAR=diag(0,2),
+                         LAMBDA=diag(1,2),
+                         DRIFT=ct_drift,
+                         DIFFUSION=matrix(c(.5,0,0,.5),2),
+                         CINT=matrix(c(0,0),nrow=2),
+                         T0MEANS=matrix(0,ncol=1,nrow=2),
+                         T0VAR=diag(1,2))
 
 # simulate a training data set
 traindata <- ctGenerate(generatingModel,n.subjects = 100)
@@ -123,31 +115,31 @@ traindata <- ctGenerate(generatingModel,n.subjects = 100)
 # although it is 0 in the population.
 
 myModel <- ctModel(Tpoints=10,n.latent=2,n.TDpred=0,n.TIpred=0,n.manifest=2,
-                  LAMBDA=diag(1,2),
-                  MANIFESTVAR=diag(0,2),
-                  CINT=matrix(c(0,0),nrow=2),
-                  DIFFUSION=matrix(c('eta1_eta1',0,0,'eta2_eta2'),2),
-                  T0MEANS=matrix(0,ncol=1,nrow=2),
-                  T0VAR=diag(1,2))
+                   LAMBDA=diag(1,2),
+                   MANIFESTVAR=diag(0,2),
+                   CINT=matrix(c(0,0),nrow=2),
+                   DIFFUSION=matrix(c('eta1_eta1',0,0,'eta2_eta2'),2),
+                   T0MEANS=matrix(0,ncol=1,nrow=2),
+                   T0VAR=diag(1,2))
 
 # fit the model using ctsem:
 fit_myModel <- ctFit(traindata, myModel)
-summary(fit_myModel)
+fit_myModel$mxobj$DRIFT$values
 
 # regularize the model:
 library(laremm)
 
 # start regularization:
 reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
-                           fitfun = "FIML",data_type = "raw",
-                           pen_on = "DRIFT", selectedDrifts = "cross",
-                           pen_start = 0, pen_end = 1, pen_stepsize = .1)
+                            fitfun = "FIML",data_type = "raw",
+                            pen_on = "DRIFT", selectedDrifts = "cross",
+                            pen_start = 0, pen_end = 1, pen_stepsize = .1)
 
 # show the best value for penalty term (tuning parameter):
-reg_myModel$best_penalty
+reg_myModel$`best penalty`
 
 # show summary of parameters:
-summary(reg_myModel$bestmodel)
+reg_myModel$bestmodel$BaseModel$DRIFT$values
 
 #### additional Cross - validation: #####
 set.seed(15)
@@ -162,14 +154,14 @@ testdata <- fit_myModel$mxobj$data
 
 # fit models with cross-validation:
 cv_reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
-                              fitfun = "FIML",data_type = "raw",pen_on = "DRIFT",
-                              selectedDrifts = "cross", pen_start = 0,
-                              pen_end = 1, pen_stepsize = .1, CV = TRUE,
-                              Test_Sample = testdata)
+                               fitfun = "FIML",data_type = "raw",pen_on = "DRIFT",
+                               selectedDrifts = "cross", pen_start = 0,
+                               pen_end = 1, pen_stepsize = .1, CV = TRUE,
+                               Test_Sample = testdata, fit_index = "CV_BIC")
 # show the best value for penalty term (tuning parameter):
-cv_reg_myModel$best_penalty
+cv_reg_myModel$`best penalty`
 # show summary of parameters:
-summary(cv_reg_myModel$bestmodel)
-
+cv_reg_myModel$bestmodel$BaseModel$DRIFT$values
+cv_reg_myModel$`fit measures`
 
 }

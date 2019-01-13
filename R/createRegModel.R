@@ -82,7 +82,7 @@ createRegModel <- function(model, model_type = "ctsem", fitfun = "FIML", data_ty
     numObs <- modelobject$data$numObs
   }
 
-  numObs <- mxMatrix(type= "Full", nrow= 1, ncol = 1, free = FALSE, values = numObs,name = "numObs") # define peanlty value
+  numObs <- mxMatrix(type= "Full", nrow= 1, ncol = 1, free = FALSE, values = numObs,name = "numObs") # define numObs as mxMatrix
   pen_value <- mxMatrix(type= "Full", nrow= 1, ncol = 1, free = FALSE, values = pen_value,name = "pen_value") # define peanlty value
 
   # Basis for model building:
