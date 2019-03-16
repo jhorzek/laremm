@@ -1,12 +1,12 @@
 getEstimatedParameters <- function(regmodel){
-  
+
   # free parameter:
   matrices <- regmodel$BaseModel$matrices
 
   new_model <- regmodel$BaseModel
-  
+
   estimated_params <- 0
-  
+
   # values are only set to 0 and set as free = FALSE, if ther absolute value is smaller than .001 and if they have been penalized.
   # this procedure is equivalent to the one used in regsem
   # if penalty is on A:
@@ -62,14 +62,23 @@ getEstimatedParameters <- function(regmodel){
       #new_model <- mxModel(new_model,  matrices$CINT)
     }
   }
-  
+
   # get estimated parameters:
-  for (matrix in matrices){
-    estimated_params <- estimated_params + sum(matrix$free)
+  for(matrix in matrices){
+    if(any(!is.na(matrix$labels))){
+      # elements without labels that are free:
+      sum1 <- sum(is.na(matrix$labels)&& matrix$free)
+      # unique elements with labels that are free
+      sum2 <- length(unique(matrix$labels[matrix$free]))
+      estimated_params <- estimated_params + sum1 + sum2
+    }else{
+      estimated_params <- estimated_params + sum(matrix$free)
+    }
+
   }
-  
+
   retval = list("new_model" = new_model, "estimated parameters" = estimated_params)
-  
+
   return(retval)
-  
+
 }
