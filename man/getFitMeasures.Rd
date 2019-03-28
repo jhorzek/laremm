@@ -5,7 +5,7 @@
 \title{compute fit measures for laremm}
 \usage{
 getFitMeasures(regmodel, model_type = "mxModel", fitfun = "FIML",
-  cvsample = NULL)
+  cvsample = NULL, zeroThresh = 0.001, setZero = FALSE)
 }
 \arguments{
 \item{regmodel}{already run regularized model}
@@ -15,6 +15,10 @@ getFitMeasures(regmodel, model_type = "mxModel", fitfun = "FIML",
 \item{fitfun}{fitfunction to be used in the fitting procedure. Either FML or FIML}
 
 \item{cvsample}{mxData object with test sample data. Has to be of same data_type as the training data set}
+
+\item{zeroThresh}{threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}}
+
+\item{setZero}{should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}}
 }
 \description{
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!

@@ -4,12 +4,17 @@
 \alias{getFML}
 \title{get FML values}
 \usage{
-getFML(regmodel, use_unbiasedCov = FALSE)
+getFML(regmodel, zeroThresh = 0.001, use_unbiasedCov = FALSE,
+  setZero = FALSE)
 }
 \arguments{
 \item{regmodel}{already run regularized model}
 
+\item{zeroThresh}{threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}}
+
 \item{use_unbiasedCov}{wheather to use the unbiased covariance; default is FALSE which is equivalent to regsem}
+
+\item{setZero}{should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}}
 }
 \description{
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!

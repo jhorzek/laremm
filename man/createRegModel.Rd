@@ -41,7 +41,7 @@ createRegModel creates a regularized model from a mxModel or ctsem.
 \examples{
 # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 
-library(lavaan)
+llibrary(lavaan)
 library(OpenMx)
 # put variables on same scale for regsem
 HS <- data.frame(scale(HolzingerSwineford1939[,7:15]))
@@ -59,10 +59,10 @@ lmanif <- mxPath(from = manifest, arrows =2 , free =T, values = 1)
 myModel <- mxModel(name = "myModel", latentVars = latent, manifestVars = manifest, type = "RAM",
                    mxData(observed = HS, type = "raw"), loadings, lcov, lmanif,
                    mxPath(from = "one", to = manifest, free = T)
-                  )
+)
 
 fit_myModel <- mxRun(myModel)
-summary(fit_myModel)
+round(fit_myModel$A$values,5)
 
 # create regularized model:
 
@@ -71,11 +71,10 @@ selectedA[c(2,3,7,8,9),10] <-1
 
 
 reg_model <- createRegModel(model = fit_myModel, model_type = "mxModel", fitfun = "FIML", data_type = "raw",
-                           pen_on = "A", selectedA = selectedA, pen_value = .05
-                           )
+                            pen_on = "A", selectedA = selectedA, pen_value = .05
+)
 fit_reg_model <- mxRun(reg_model)
-summary(fit_reg_model)
 
-round(reg_model$fit_measures,5)
+round(fit_reg_model$BaseModel$A$values,5)
 
 }

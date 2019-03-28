@@ -9,7 +9,7 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
   selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
   selectedS = "none", pen_start = 0, pen_end = 1,
   pen_stepsize = 0.01, fit_index = "BIC", CV = FALSE,
-  Test_Sample = NULL)
+  Test_Sample = NULL, zeroThresh = 0.001, setZero = FALSE)
 }
 \arguments{
 \item{model}{mxModel or ctsem object}
@@ -41,6 +41,10 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 \item{CV}{should a cross validation be computed? If TRUE, provide a Test_Sample}
 
 \item{Test_Sample}{mxData object with test sample data. Has to be of same data_type as the training data set}
+
+\item{zeroThresh}{threshold for evaluating regularized parameters as zero. Default is .001 similar to \pkg{regsem}}
+
+\item{setZero}{should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}}
 
 \item{penalty_type}{so far only "lasso" implemented}
 

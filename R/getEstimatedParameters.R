@@ -1,4 +1,4 @@
-getEstimatedParameters <- function(regmodel, zeroThresh = .001){
+getEstimatedParameters <- function(regmodel, zeroThresh = .001, setZero = FALSE){
 
   # free parameter:
   matrices <- regmodel$BaseModel$matrices
@@ -75,6 +75,9 @@ getEstimatedParameters <- function(regmodel, zeroThresh = .001){
       estimated_params <- estimated_params + sum(matrix$free)
     }
 
+  }
+  if(!setZero){
+    new_model <- regmodel$BaseModel
   }
 
   retval = list("new_model" = new_model, "estimated parameters" = estimated_params)

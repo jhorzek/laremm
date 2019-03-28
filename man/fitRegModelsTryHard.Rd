@@ -9,7 +9,8 @@ fitRegModelsTryHard(model, model_type = "ctsem", fitfun = "FIML",
   selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
   selectedS = "none", pen_start = 0, pen_end = 1,
   pen_stepsize = 0.01, fit_index = "BIC", ncp_rmsea = FALSE,
-  satmod = NULL, CV = FALSE, cv_satmod = NULL, Test_Sample = NULL)
+  satmod = NULL, CV = FALSE, cv_satmod = NULL, Test_Sample = NULL,
+  zeroThresh = 0.001)
 }
 \arguments{
 \item{model}{mxModel or ctsem object}
@@ -47,6 +48,8 @@ fitRegModelsTryHard(model, model_type = "ctsem", fitfun = "FIML",
 \item{cv_satmod}{saturated model for cross validation. This model has to be based on the cv sample}
 
 \item{Test_Sample}{mxData object with test sample data. Has to be of same data_type as the training data set}
+
+\item{zeroThresh}{threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}}
 
 \item{penalty_type}{so far only "lasso" implemented}
 

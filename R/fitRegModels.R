@@ -20,7 +20,8 @@
 #' @param fit_index which fit index should be used to find the best model? Possible are AIC and BIC, CV_m2LL, CV_AIC, CV_BIC
 #' @param CV should a cross validation be computed? If TRUE, provide a Test_Sample
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
-#' @param zeroThresh threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}
+#' @param zeroThresh threshold for evaluating regularized parameters as zero. Default is .001 similar to \pkg{regsem}
+#' @param setZero should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}
 #' @examples
 #' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 #'
@@ -143,7 +144,8 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
                          fit_index = "BIC",
                          CV = FALSE,
                          Test_Sample = NULL,
-                         zeroThresh = .001){
+                         zeroThresh = .001,
+                         setZero = FALSE){
   # in future:
   #, selectedLambda = "none",
   #selectedCint = "none",
@@ -184,7 +186,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
       )
 
       ### compute AIC and BIC:
-      FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh)
+      Fit <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+      FitM <- Fit$return_value
+      FitModel <- Fit$return_Model
 
       results["estimated Parameters",counter] <- FitM$estimated_params # estimated parameters
       results["m2LL",counter] <- FitM$m2LL # -2LogL
@@ -216,6 +220,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
       reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Standard Errors", "No") # might cause errors; check
 
       fit_reg_Model_m2LL <- mxRun(reg_Model_m2LL, silent = T)
+      #set parameters below zeroThresh to zero
+      fit_reg_Model_m2LL <- getFitMeasures(regmodel = reg_Model_m2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+      fit_reg_Model_m2LL <- fit_reg_Model_m2LL$return_Model
+
       out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results))
     }
 
@@ -228,6 +236,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
 
     fit_reg_Model_AIC <- mxRun(reg_Model_AIC, silent = T)
+    #set parameters below zeroThresh to zero
+    fit_reg_Model_AIC <- getFitMeasures(regmodel = fit_reg_Model_AIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+    fit_reg_Model_AIC <- fit_reg_Model_AIC$return_Model
+
     out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results))
     }
 
@@ -240,6 +252,11 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
 
     fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
+    #set parameters below zeroThresh to zero
+    fit_reg_Model_BIC <- getFitMeasures(regmodel = fit_reg_Model_BIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+    fit_reg_Model_BIC <- fit_reg_Model_BIC$return_Model
+
+
     out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results))
     }
 
@@ -284,7 +301,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         )
 
         ### compute AIC and BIC:
-        FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, cvsample = Test_Sample, zeroThresh = zeroThresh)
+        Fit <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, cvsample = Test_Sample, zeroThresh = zeroThresh, setZero = setZero)
+        FitM <- Fit$return_value
+        FitModel <- Fit$return_Model
 
         results["estimated Parameters",counter] <- FitM$estimated_params # estimated parameters
         results["m2LL",counter] <- FitM$m2LL # -2LogL
@@ -325,6 +344,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_m2LL <- mxRun(reg_Model_m2LL, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_m2LL <- getFitMeasures(regmodel = fit_reg_Model_m2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_m2LL <- fit_reg_Model_m2LL$return_Model
+
           out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results))
         }
 
@@ -337,6 +360,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_AIC <- mxRun(reg_Model_AIC, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_AIC <- getFitMeasures(regmodel = fit_reg_Model_AIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_AIC <- fit_reg_Model_AIC$return_Model
+
           out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results))
         }
 
@@ -349,6 +376,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_BIC <- mxRun(reg_Model_BIC, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_BIC <- getFitMeasures(regmodel = fit_reg_Model_BIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_BIC <- fit_reg_Model_BIC$return_Model
+
           out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results))
         }
 
@@ -361,6 +392,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_CVm2LL <- mxOption(reg_Model_CVm2LL, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_CVm2LL <- mxRun(reg_Model_CVm2LL, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_CVm2LL <- getFitMeasures(regmodel = fit_reg_Model_CVm2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_CVm2LL <- fit_reg_Model_CVm2LL$return_Model
+
           out <- list("best penalty" = minimum_CVm2LL, "bestmodel" = fit_reg_Model_CVm2LL, "fit measures" = t(results))
         }
 
@@ -373,6 +408,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_CVAIC <- mxOption(reg_Model_CVAIC, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_CVAIC <- mxRun(reg_Model_CVAIC, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_CVAIC <- getFitMeasures(regmodel = fit_reg_Model_CVAIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_CVAIC <- fit_reg_Model_CVAIC$return_Model
+
           out <- list("best penalty" = minimum_CVAIC, "bestmodel" = fit_reg_Model_CVAIC, "fit measures" = t(results))
         }
 
@@ -385,6 +424,10 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           reg_Model_CVBIC <- mxOption(reg_Model_CVBIC, "Standard Errors", "No") # might cause errors; check
 
           fit_reg_Model_CVBIC <- mxRun(reg_Model_CVBIC, silent = T)
+          #set parameters below zeroThresh to zero
+          fit_reg_Model_CVBIC <- getFitMeasures(regmodel = fit_reg_Model_CVBIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
+          fit_reg_Model_CVBIC <- fit_reg_Model_CVBIC$return_Model
+
           out <- list("best penalty" = minimum_CVBIC, "bestmodel" = fit_reg_Model_CVBIC, "fit measures" = t(results))
         }
 
