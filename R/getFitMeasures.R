@@ -6,12 +6,13 @@
 #' @param model_type specify the type of model provided: ctsem or mxModel
 #' @param fitfun fitfunction to be used in the fitting procedure. Either FML or FIML
 #' @param cvsample mxData object with test sample data. Has to be of same data_type as the training data set
+#' @param zeroThresh threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}
 #'
 #' @export
 
 
 
-getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", cvsample = NULL){
+getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", cvsample = NULL, zeroThresh = .001){
 
   # define return value:
   if(fitfun == "FML"){
@@ -46,7 +47,7 @@ getFitMeasures <- function (regmodel, model_type = "mxModel", fitfun = "FIML", c
   }
 
   # get the number of estimated parameters:
-  EstimatedParam <- getEstimatedParameters(regmodel)
+  EstimatedParam <- getEstimatedParameters(regmodel, zeroThresh)
   return_value$estimated_params <- EstimatedParam$`estimated parameters`[[1]]
 
   ### compute Fit Indices:

@@ -23,6 +23,7 @@
 #' @param cv_satmod saturated model for cross validation. This model has to be based on the cv sample
 #' @param CV should a cross validation be computed? If TRUE, provide a Test_Sample
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
+#' @param zeroThresh threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}
 #' @examples
 #' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 #'
@@ -147,7 +148,8 @@ fitRegModelsTryHard <- function (model, model_type = "ctsem", fitfun = "FIML", d
                           driftexpo = TRUE, selectedA = "none", selectedS = "none",
                           pen_start = 0, pen_end = 1, pen_stepsize = 0.01, fit_index = "BIC",
                           ncp_rmsea = FALSE, satmod = NULL, CV = FALSE, cv_satmod = NULL,
-                          Test_Sample = NULL)
+                          Test_Sample = NULL,
+                          zeroThresh = .001)
 {
   pen_values = seq(from = pen_start, to = pen_end, by = pen_stepsize)
   if (CV == FALSE) {
@@ -185,7 +187,7 @@ fitRegModelsTryHard <- function (model, model_type = "ctsem", fitfun = "FIML", d
       else (results["negative_Variances", counter] <- 0)
       FitM <- getFitMeasures(regmodel = fit_reg_Model,
                              fitfun = fitfun, ncp_rmsea = ncp_rmsea, model_type = model_type,
-                             cvsample = NULL, satmod = satmod, cv_satmod = cv_satmod)
+                             cvsample = NULL, satmod = satmod, cv_satmod = cv_satmod, zeroThresh = zeroThresh)
       results["estimated_Parameters", counter] <- FitM$estimated_params
       results["mx_train_AIC", counter] <- FitM$mxAIC
       results["lav_train_AIC", counter] <- FitM$lavaan_AIC
@@ -310,7 +312,7 @@ fitRegModelsTryHard <- function (model, model_type = "ctsem", fitfun = "FIML", d
       else (results["negative_Variances", counter] <- 0)
       FitM <- getFitMeasures(regmodel = fit_train_reg_Model,
                              model_type = model_type, fitfun = fitfun, ncp_rmsea = ncp_rmsea,
-                             cvsample = Test_Sample, satmod = satmod, cv_satmod = cv_satmod)
+                             cvsample = Test_Sample, satmod = satmod, cv_satmod = cv_satmod, zeroThresh = zeroThresh)
       results["estimated_Parameters", counter] <- FitM$estimated_params
       results["mx_train_AIC", counter] <- FitM$mxAIC
       results["lav_train_AIC", counter] <- FitM$lavaan_AIC

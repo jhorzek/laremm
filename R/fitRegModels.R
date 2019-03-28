@@ -20,6 +20,7 @@
 #' @param fit_index which fit index should be used to find the best model? Possible are AIC and BIC, CV_m2LL, CV_AIC, CV_BIC
 #' @param CV should a cross validation be computed? If TRUE, provide a Test_Sample
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
+#' @param zeroThresh threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}
 #' @examples
 #' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 #'
@@ -141,7 +142,8 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
                          pen_start = 0, pen_end = 1, pen_stepsize = .01,
                          fit_index = "BIC",
                          CV = FALSE,
-                         Test_Sample = NULL){
+                         Test_Sample = NULL,
+                         zeroThresh = .001){
   # in future:
   #, selectedLambda = "none",
   #selectedCint = "none",
@@ -182,7 +184,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
       )
 
       ### compute AIC and BIC:
-      FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, model_type = model_type, cvsample = NULL)
+      FitM <- getFitMeasures(regmodel = fit_reg_Model, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh)
 
       results["estimated Parameters",counter] <- FitM$estimated_params # estimated parameters
       results["m2LL",counter] <- FitM$m2LL # -2LogL
@@ -282,7 +284,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         )
 
         ### compute AIC and BIC:
-        FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, cvsample = Test_Sample)
+        FitM <- getFitMeasures(regmodel = fit_train_reg_Model, model_type = model_type, fitfun = fitfun, cvsample = Test_Sample, zeroThresh = zeroThresh)
 
         results["estimated Parameters",counter] <- FitM$estimated_params # estimated parameters
         results["m2LL",counter] <- FitM$m2LL # -2LogL
