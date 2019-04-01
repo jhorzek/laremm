@@ -90,7 +90,7 @@ reg_model <- fitRegModels(model = fit_myModel, model_type = "mxModel", fitfun = 
                           pen_on = "A", selectedA = selectedA,
                           pen_start = 0, pen_end = .05, pen_stepsize = .01
                           )
-summary(reg_model$bestmodel)
+summary(reg_model)
 reg_model$`fit measures`
 
 ### use laremm in ctsem ####
@@ -143,7 +143,7 @@ reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
 reg_myModel$`best penalty`
 
 # show summary of parameters:
-reg_myModel$bestmodel$BaseModel$DRIFT$values
+summary(reg_myModel)
 
 #### additional Cross - validation: #####
 set.seed(15)
@@ -162,10 +162,7 @@ cv_reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
                                selectedDrifts = "cross", pen_start = 0,
                                pen_end = 1, pen_stepsize = .1, CV = TRUE,
                                Test_Sample = testdata, fit_index = "CV_BIC")
-# show the best value for penalty term (tuning parameter):
-cv_reg_myModel$`best penalty`
-# show summary of parameters:
-cv_reg_myModel$bestmodel$BaseModel$DRIFT$values
-cv_reg_myModel$`fit measures`
+# show the summary:
+summary(cv_reg_myModel)
 
 }

@@ -58,7 +58,7 @@
 #'                           pen_on = "A", selectedA = selectedA,
 #'                           pen_start = 0, pen_end = .05, pen_stepsize = .01
 #'                           )
-#' summary(reg_model$bestmodel)
+#' summary(reg_model)
 #' reg_model$`fit measures`
 #'
 #' ### use laremm in ctsem ####
@@ -111,7 +111,7 @@
 #' reg_myModel$`best penalty`
 #'
 #' # show summary of parameters:
-#' reg_myModel$bestmodel$BaseModel$DRIFT$values
+#' summary(reg_myModel)
 #'
 #' #### additional Cross - validation: #####
 #' set.seed(15)
@@ -130,11 +130,8 @@
 #'                                selectedDrifts = "cross", pen_start = 0,
 #'                                pen_end = 1, pen_stepsize = .1, CV = TRUE,
 #'                                Test_Sample = testdata, fit_index = "CV_BIC")
-#' # show the best value for penalty term (tuning parameter):
-#' cv_reg_myModel$`best penalty`
-#' # show summary of parameters:
-#' cv_reg_myModel$bestmodel$BaseModel$DRIFT$values
-#' cv_reg_myModel$`fit measures`
+#' # show the summary:
+#' summary(cv_reg_myModel)
 #'
 #' @export
 #'
@@ -151,6 +148,8 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
   #selectedCint = "none",
   #selectedTdpredeffect = "none",
   #selectedDiffusion = "none",
+
+  call <- mget(names(formals()),sys.frame(sys.nframe()))
 
   pen_values = seq(from = pen_start, to = pen_end, by = pen_stepsize) # iteration through these values
 
@@ -224,7 +223,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
       fit_reg_Model_m2LL <- getFitMeasures(regmodel = reg_Model_m2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
       fit_reg_Model_m2LL <- fit_reg_Model_m2LL$return_Model
 
-      out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results))
+      out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results), "call" = call)
     }
 
     if(fit_index == "AIC"){
@@ -240,7 +239,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     fit_reg_Model_AIC <- getFitMeasures(regmodel = fit_reg_Model_AIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
     fit_reg_Model_AIC <- fit_reg_Model_AIC$return_Model
 
-    out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results))
+    out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results), "call" = call)
     }
 
     if(fit_index == "BIC"){
@@ -257,8 +256,9 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     fit_reg_Model_BIC <- fit_reg_Model_BIC$return_Model
 
 
-    out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results))
+    out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results), "call" = call)
     }
+    class(out) <- "FitLaremmObject"
 
     return(out)
 
@@ -348,7 +348,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_m2LL <- getFitMeasures(regmodel = fit_reg_Model_m2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_m2LL <- fit_reg_Model_m2LL$return_Model
 
-          out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_m2LL, "bestmodel" = fit_reg_Model_m2LL, "fit measures" = t(results), "call" = call)
         }
 
         if(fit_index == "AIC"){
@@ -364,7 +364,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_AIC <- getFitMeasures(regmodel = fit_reg_Model_AIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_AIC <- fit_reg_Model_AIC$return_Model
 
-          out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_AIC, "bestmodel" = fit_reg_Model_AIC, "fit measures" = t(results), "call" = call)
         }
 
         if(fit_index == "BIC"){
@@ -380,7 +380,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_BIC <- getFitMeasures(regmodel = fit_reg_Model_BIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_BIC <- fit_reg_Model_BIC$return_Model
 
-          out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_BIC, "bestmodel" = fit_reg_Model_BIC, "fit measures" = t(results), "call" = call)
         }
 
         if(fit_index == "CV_m2LL"){
@@ -396,7 +396,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_CVm2LL <- getFitMeasures(regmodel = fit_reg_Model_CVm2LL, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_CVm2LL <- fit_reg_Model_CVm2LL$return_Model
 
-          out <- list("best penalty" = minimum_CVm2LL, "bestmodel" = fit_reg_Model_CVm2LL, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_CVm2LL, "bestmodel" = fit_reg_Model_CVm2LL, "fit measures" = t(results), "call" = call)
         }
 
         if(fit_index == "CV_AIC"){
@@ -412,7 +412,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_CVAIC <- getFitMeasures(regmodel = fit_reg_Model_CVAIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_CVAIC <- fit_reg_Model_CVAIC$return_Model
 
-          out <- list("best penalty" = minimum_CVAIC, "bestmodel" = fit_reg_Model_CVAIC, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_CVAIC, "bestmodel" = fit_reg_Model_CVAIC, "fit measures" = t(results), "call" = call)
         }
 
         if(fit_index == "CV_BIC"){
@@ -428,8 +428,11 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
           fit_reg_Model_CVBIC <- getFitMeasures(regmodel = fit_reg_Model_CVBIC, fitfun = fitfun, model_type = model_type, cvsample = NULL, zeroThresh = zeroThresh, setZero = setZero)
           fit_reg_Model_CVBIC <- fit_reg_Model_CVBIC$return_Model
 
-          out <- list("best penalty" = minimum_CVBIC, "bestmodel" = fit_reg_Model_CVBIC, "fit measures" = t(results))
+          out <- list("best penalty" = minimum_CVBIC, "bestmodel" = fit_reg_Model_CVBIC, "fit measures" = t(results), "call" = call)
         }
+
+
+        class(out) <- "FitLaremmObject"
 
 
 
