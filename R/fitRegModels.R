@@ -22,6 +22,11 @@
 #' @param Test_Sample mxData object with test sample data. Has to be of same data_type as the training data set
 #' @param zeroThresh threshold for evaluating regularized parameters as zero. Default is .001 similar to \pkg{regsem}
 #' @param setZero should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}
+#'
+#'
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
+#'
 #' @examples
 #' # The following example is taken from the regsem help to demonstrate the equivalence of both methods:
 #'

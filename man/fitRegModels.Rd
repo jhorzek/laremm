@@ -166,3 +166,6 @@ cv_reg_myModel <- fitRegModels(model = fit_myModel, model_type = "ctsem",
 summary(cv_reg_myModel)
 
 }
+\author{
+Jannik Orzek
+}

@@ -22,3 +22,6 @@ This function computes the -2log(Likelihood) based on the formula reported in Hi
 \examples{
 
 }
+\author{
+Jannik Orzek
+}

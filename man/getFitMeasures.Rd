@@ -23,3 +23,6 @@ getFitMeasures(regmodel, model_type = "mxModel", fitfun = "FIML",
 \description{
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
 }
+\author{
+Jannik Orzek
+}

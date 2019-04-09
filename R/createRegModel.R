@@ -55,6 +55,8 @@
 #'
 #' round(fit_reg_model$BaseModel$A$values,5)
 #'
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
 #' @export
 
 

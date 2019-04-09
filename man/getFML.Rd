@@ -20,3 +20,6 @@ getFML(regmodel, zeroThresh = 0.001, use_unbiasedCov = FALSE,
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
 Computes FML values corresponding to the values reported in \pkg{regsem} for covariance based models
 }
+\author{
+Jannik Orzek
+}

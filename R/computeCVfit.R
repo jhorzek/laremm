@@ -1,5 +1,7 @@
 #' compute fit of cross valudation
-#'
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
+#' @export
 computeCVfit <- function(model, ctmodelobj, testset, numObs, model_type = "ctsem", fitfunction = "FIML"){
   if(model_type == "ctsem" & fitfunction == "FIML"){
     if (is.null(ctmodelobj)){print("Please provide ctmodelobject")

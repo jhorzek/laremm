@@ -9,3 +9,6 @@ createCVfolds(data, k_folds)
 \description{
 create cv folds for ctsem
 }
+\author{
+Jannik Orzek
+}

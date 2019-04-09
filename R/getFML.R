@@ -7,7 +7,8 @@
 #' @param use_unbiasedCov wheather to use the unbiased covariance; default is FALSE which is equivalent to regsem
 #' @param zeroThresh threshold for setting regularized parameters to zero. Default is .001 similar to \pkg{regsem}
 #' @param setZero should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}
-#'
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
 #'@export
 getFML <- function(regmodel, zeroThresh = .001, use_unbiasedCov = FALSE, setZero = FALSE){
   if(setZero){

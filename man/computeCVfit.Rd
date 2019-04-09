@@ -10,3 +10,6 @@ computeCVfit(model, ctmodelobj, testset, numObs, model_type = "ctsem",
 \description{
 compute fit of cross valudation
 }
+\author{
+Jannik Orzek
+}

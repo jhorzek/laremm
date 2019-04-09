@@ -8,6 +8,8 @@
 #' @param NManif Number of manifest variables in the data set
 #' @param NObs Sample size
 #' @param useBiasedCov if TRUE, the biased covariance is used to compute the -2LogL
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
 #' @examples
 #'
 #' @export

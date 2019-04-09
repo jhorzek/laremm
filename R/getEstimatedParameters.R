@@ -1,3 +1,7 @@
+#' computes the estimated parameters for a given threshold
+#' @author Jannik Orzek
+#' @import OpenMx ctsem
+#' @export
 getEstimatedParameters <- function(regmodel, zeroThresh = .001, setZero = FALSE){
 
   # free parameter:
