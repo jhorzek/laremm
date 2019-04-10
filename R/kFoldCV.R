@@ -1,9 +1,10 @@
-#' fitRegModels
+#' kFoldCV
 #'
 #' Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!
 #' kFoldCV uses k fold cross-validation with fitRegModels
 #'
-#' @param model mxModel
+#' @param k specifies the number of splits (e.g. k = 5 for 5-fold-CV)
+#' @param model mxModel with the full data set in model$data. The data set will be split by kFoldCV
 #' @param model_type specify the type of model provided: only mxModel supported
 #' @param fitfun fitfunction to be used in the fitting procedure. Currently only FIML implemented
 #' @param data_type type of data in the model. Only "raw" supported

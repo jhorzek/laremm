@@ -9,7 +9,8 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
   selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
   selectedS = "none", pen_start = 0, pen_end = 1,
   pen_stepsize = 0.01, fit_index = "BIC", CV = FALSE,
-  Test_Sample = NULL, zeroThresh = 0.001, setZero = FALSE)
+  Test_Sample = NULL, zeroThresh = 0.001, setZero = FALSE,
+  DRIFT_dt = 1)
 }
 \arguments{
 \item{model}{mxModel or ctsem object}
@@ -46,9 +47,9 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 
 \item{setZero}{should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}}
 
-\item{penalty_type}{so far only "lasso" implemented}
-
 \item{DRIFT_dt}{provide the discrete time points for which the drift will be regularized. A vector with multiple values is possible}
+
+\item{penalty_type}{so far only "lasso" implemented}
 }
 \description{
 Note: laremm is based on the R package \pkg{regsem}. Because of the early status of laremm, it is recommended to use regsem instead!

@@ -147,7 +147,8 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
                          CV = FALSE,
                          Test_Sample = NULL,
                          zeroThresh = .001,
-                         setZero = FALSE){
+                         setZero = FALSE,
+                         DRIFT_dt =1){
   # in future:
   #, selectedLambda = "none",
   #selectedCint = "none",
@@ -171,7 +172,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     for(i in pen_values){
       results["penalty",counter] <- i
       reg_Model <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
-                                  pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA, selectedS = selectedS)
+                                  pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA, selectedS = selectedS)
 
       reg_Model <- mxOption(reg_Model, "Calculate Hessian", "No") # might cause errors; check
       reg_Model <- mxOption(reg_Model, "Standard Errors", "No") # might cause errors; check
@@ -218,7 +219,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     if(fit_index == "m2LL"){
       best_penalty = minimum_m2LL
       reg_Model_m2LL <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                      pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                      pen_on = pen_on, selectedDrifts =selectedDrifts,DRIFT_dt = DRIFT_dt, driftexpo = driftexpo, selectedA = selectedA,
                                       selectedS = selectedS)
       reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Calculate Hessian", "No") # might cause errors; check
       reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Standard Errors", "No") # might cause errors; check
@@ -234,7 +235,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     if(fit_index == "AIC"){
       best_penalty = minimum_AIC
     reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt,selectedA = selectedA,
                                     selectedS = selectedS)
     reg_Model_AIC <- mxOption(reg_Model_AIC, "Calculate Hessian", "No") # might cause errors; check
     reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
@@ -250,7 +251,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
     if(fit_index == "BIC"){
       best_penalty = minimum_BIC
     reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo,DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                     selectedS = selectedS)
     reg_Model_BIC <- mxOption(reg_Model_BIC, "Calculate Hessian", "No") # might cause errors; check
     reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
@@ -288,7 +289,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
 
         train_reg_Model <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = i,
-                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                    pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo,DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                     selectedS = selectedS)
 
         train_reg_Model <- mxOption(train_reg_Model, "Calculate Hessian", "No") # might cause errors; check
@@ -343,7 +344,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "m2LL"){
           best_penalty = minimum_m2LL
           reg_Model_m2LL <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                           pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                           pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt=DRIFT_dt, selectedA = selectedA,
                                            selectedS = selectedS)
           reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_m2LL <- mxOption(reg_Model_m2LL, "Standard Errors", "No") # might cause errors; check
@@ -359,7 +360,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "AIC"){
           best_penalty = minimum_AIC
           reg_Model_AIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                          pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                          pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                           selectedS = selectedS)
           reg_Model_AIC <- mxOption(reg_Model_AIC, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_AIC <- mxOption(reg_Model_AIC, "Standard Errors", "No") # might cause errors; check
@@ -375,7 +376,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "BIC"){
           best_penalty = minimum_BIC
           reg_Model_BIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                          pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                          pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                           selectedS = selectedS)
           reg_Model_BIC <- mxOption(reg_Model_BIC, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_BIC <- mxOption(reg_Model_BIC, "Standard Errors", "No") # might cause errors; check
@@ -391,7 +392,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "CV_m2LL"){
           best_penalty = minimum_CVm2LL
           reg_Model_CVm2LL <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                             pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                             pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                              selectedS = selectedS)
           reg_Model_CVm2LL <- mxOption(reg_Model_CVm2LL, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_CVm2LL <- mxOption(reg_Model_CVm2LL, "Standard Errors", "No") # might cause errors; check
@@ -407,7 +408,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "CV_AIC"){
           best_penalty = minimum_CVAIC
           reg_Model_CVAIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                            pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                            pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                             selectedS = selectedS)
           reg_Model_CVAIC <- mxOption(reg_Model_CVAIC, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_CVAIC <- mxOption(reg_Model_CVAIC, "Standard Errors", "No") # might cause errors; check
@@ -423,7 +424,7 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
         if(fit_index == "CV_BIC"){
           best_penalty = minimum_CVBIC
           reg_Model_CVBIC <- createRegModel(model, model_type = model_type, fitfun = fitfun, data_type= data_type, pen_type = pen_type, pen_value = best_penalty,
-                                            pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                                            pen_on = pen_on, selectedDrifts =selectedDrifts, driftexpo = driftexpo, DRIFT_dt = DRIFT_dt, selectedA = selectedA,
                                             selectedS = selectedS)
           reg_Model_CVBIC <- mxOption(reg_Model_CVBIC, "Calculate Hessian", "No") # might cause errors; check
           reg_Model_CVBIC <- mxOption(reg_Model_CVBIC, "Standard Errors", "No") # might cause errors; check

@@ -2,7 +2,7 @@
 % Please edit documentation in R/kFoldCV.R
 \name{kFoldCV}
 \alias{kFoldCV}
-\title{fitRegModels}
+\title{kFoldCV}
 \usage{
 kFoldCV(k = 5, model, model_type = "mxModel", fitfun = "FIML",
   data_type = "raw", pen_type = "lasso", pen_on = "none",
@@ -11,7 +11,9 @@ kFoldCV(k = 5, model, model_type = "mxModel", fitfun = "FIML",
   pen_stepsize = 0.01, zeroThresh = 0.001, setZero = FALSE)
 }
 \arguments{
-\item{model}{mxModel}
+\item{k}{specifies the number of splits (e.g. k = 5 for 5-fold-CV)}
+
+\item{model}{mxModel with the full data set in model$data. The data set will be split by kFoldCV}
 
 \item{model_type}{specify the type of model provided: only mxModel supported}
 
