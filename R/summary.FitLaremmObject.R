@@ -106,6 +106,18 @@ summary.FitLaremmObject <- function(object,...){
 
   }else if(object$call$model_type == "ctsem"){
     print("Not fully implemented. Elements can be accessed with object$bestmodel$BaseModel...")
+    # get fit measures
+    m2LL <- object$`fit measures`[which(object$`fit measures`[,"penalty"] == object$`best penalty`), "m2LL"]
+    AIC <- object$`fit measures`[which(object$`fit measures`[,"penalty"] == object$`best penalty`), "AIC"]
+    BIC <- object$`fit measures`[which(object$`fit measures`[,"penalty"] == object$`best penalty`), "BIC"]
+    if(object$call$CV){
+      CV_m2LL <- object$`fit measures`[which(object$`fit measures`[,"penalty"] == object$`best penalty`), "CV m2LL"]
+    }else{CV_m2LL <- NA}
+
+    estimatedParameters <- object$`fit measures`[which(object$`fit measures`[,"penalty"] == object$`best penalty`), "estimated Parameters"]
+    convergence <- if(any(!object$`fit measures`[,"convergence"] ==0)){"Problems with convergence occured"}else{"No convergence problems"}
+    negativeVariances <- if(any(!object$`fit measures`[,"negative variances"] ==0)){"Negative variances occured"}else{"No negative variances"}
+
     Drift <- object$bestmodel$BaseModel$DRIFT$values
     retList <- list(
       "object type" = object$call$model_type,
