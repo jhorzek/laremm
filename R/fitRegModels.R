@@ -141,13 +141,14 @@
 #' @export
 #'
 fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type= "raw",pen_type = "lasso",
-                         pen_on = "none",selectedDrifts ="none", driftexpo = TRUE, selectedA = "none", selectedS = "none",
+                         pen_on = "none",selectedDrifts ="none", selectedA = "none", selectedS = "none",
                          pen_start = 0, pen_end = 1, pen_stepsize = .01,
                          fit_index = "BIC",
                          CV = FALSE,
                          Test_Sample = NULL,
                          zeroThresh = .001,
                          setZero = FALSE,
+                         driftexpo = TRUE,
                          DRIFT_dt =1){
   # in future:
   #, selectedLambda = "none",
@@ -184,8 +185,8 @@ fitRegModels <- function(model, model_type = "ctsem", fitfun = "FIML", data_type
 
       if(any(fit_reg_Model$BaseModel$S$values[variances] <0)){
         results["negative variances",counter] <- 1 # check negative variances
-      }else if(model_type=="ctsem" && any(fit_reg_Model$BaseModel$DIFFUSION$result <0)){
-        results["negative variances",counter] <- 1 # check negative diffusion in ctsem
+      #}else if(model_type=="ctsem" && any(fit_reg_Model$BaseModel$DIFFUSION$result <0)){
+      #  results["negative variances",counter] <- 1 # check negative diffusion in ctsem
       }else(
         results["negative variances",counter] <- 0
       )
