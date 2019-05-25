@@ -6,10 +6,10 @@
 \usage{
 fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
   data_type = "raw", pen_type = "lasso", pen_on = "none",
-  selectedDrifts = "none", driftexpo = TRUE, selectedA = "none",
-  selectedS = "none", pen_start = 0, pen_end = 1,
-  pen_stepsize = 0.01, fit_index = "BIC", CV = FALSE,
-  Test_Sample = NULL, zeroThresh = 0.001, setZero = FALSE,
+  selectedDrifts = "none", selectedA = "none", selectedS = "none",
+  pen_start = 0, pen_end = 1, pen_stepsize = 0.01,
+  fit_index = "BIC", CV = FALSE, Test_Sample = NULL,
+  zeroThresh = 0.001, setZero = FALSE, driftexpo = TRUE,
   DRIFT_dt = 1)
 }
 \arguments{
@@ -24,8 +24,6 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 \item{pen_on}{string vector with matrices that should be regularized. Possible are combinations of "A", "S", "DRIFT"}
 
 \item{selectedDrifts}{drift values to regularize. Possible are "all", "cross", "auto" or providing a matrix of the same size as the drift matrix with ones for every parameter to regularize and 0 for every non-regularized parameter}
-
-\item{driftexpo}{specifiy if the regularization will be performed on the raw drift matrix or on the exponential of the drift matrix (discrete time parameters)}
 
 \item{selectedA}{A values to regularize. Possible are "all", or providing a matrix of the same size as the A matrix with ones for every parameter to regularize and 0 for every non-regularized parameter}
 
@@ -46,6 +44,8 @@ fitRegModels(model, model_type = "ctsem", fitfun = "FIML",
 \item{zeroThresh}{threshold for evaluating regularized parameters as zero. Default is .001 similar to \pkg{regsem}}
 
 \item{setZero}{should parameters below zeroThresh be set to zero in all fit calculations. Default is FALSE, similar to \pkg{regsem}}
+
+\item{driftexpo}{specifiy if the regularization will be performed on the raw drift matrix or on the exponential of the drift matrix (discrete time parameters)}
 
 \item{DRIFT_dt}{provide the discrete time points for which the drift will be regularized. A vector with multiple values is possible}
 
