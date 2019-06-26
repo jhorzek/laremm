@@ -107,15 +107,15 @@ kFoldCV <- function(k = 5, model,
   full_raw_data <- model$data$observed
 
   Res <- matrix(NA, nrow = length(seq(from = pen_start, to = pen_end, by = pen_stepsize)), ncol = k+4)
-  colnames(Res) <- c("penalty", "sum CV_m2LL",paste("fold", 1:k), "negative variances", "convergence problems")
+  colnames(Res) <- c("penalty", "mean CV_m2LL",paste("fold", 1:k), "negative variances", "convergence problems")
   Res[,"penalty"] <- seq(from = pen_start, to = pen_end, by = pen_stepsize)
   Res[,"negative variances"] <- 0
   Res[,"convergence problems"] <- 0
 
   fold <- 1
   for(Fold in Folds){
-    Train_Sample <- full_raw_data[Fold,]
-    Test_Sample <- full_raw_data[-Fold,]
+    Test_Sample <- full_raw_data[Fold,]
+    Train_Sample <- full_raw_data[-Fold,]
 
     Train_Sample <- scale(Train_Sample)
     Test_Sample <- scale(Test_Sample)
@@ -124,12 +124,11 @@ kFoldCV <- function(k = 5, model,
     tempModel$data <- mxData(observed = Train_Sample, type = "raw")
     Test_Sample <- mxData(observed = Test_Sample, type = "raw")
 
-    tempFit <- fitRegModels(tempModel, model_type, fitfun,
-                 data_type, pen_type, pen_on,
-                 selectedDrifts, driftexpo, selectedA,
-                 selectedS, pen_start, pen_end,
-                 pen_stepsize, fit_index, CV,
-                 Test_Sample, zeroThresh, setZero)
+    tempFit <- fitRegModels(model = tempModel, model_type = model_type, fitfun = fitfun, data_type = data_type, pen_type, pen_on,
+                 selectedDrifts = selectedDrifts, driftexpo = driftexpo, selectedA = selectedA,
+                 selectedS = selectedS, pen_start = pen_start, pen_end = pen_end,
+                 pen_stepsize = pen_stepsize, fit_index = fit_index, CV = CV,
+                 Test_Sample = Test_Sample, zeroThresh = zeroThresh, setZero = setZero)
 
     Res[,paste("fold", fold)] <- tempFit$`fit measures`[,'CV m2LL']
     Res[,"negative variances"] <- Res[,"negative variances"] + tempFit$`fit measures`[,'negative variances']
@@ -140,14 +139,14 @@ kFoldCV <- function(k = 5, model,
     fold <- fold + 1
   }
 
-  # sum the m2LLs:
-  Res[,"sum CV_m2LL"] <- apply(Res[, paste("fold", 1:k)], 1, sum)
+  # mean the m2LLs:
+  Res[,"mean CV_m2LL"] <- apply(Res[, paste("fold", 1:k)], 1, mean)
 
   # only use runs without problems:
   Res_final <- Res[Res[,"negative variances"] == 0 && Res[,"convergence problems"] == 0,]
 
   # find best penalty value:
-  best_penalty <- Res_final[which(Res_final[,"sum CV_m2LL"] == min(Res_final[,"sum CV_m2LL"])), "penalty"]
+  best_penalty <- Res_final[which(Res_final[,"mean CV_m2LL"] == min(Res_final[,"mean CV_m2LL"])), "penalty"]
 
   # fit best penalty model with full data set:
 

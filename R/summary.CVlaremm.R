@@ -6,7 +6,7 @@
 summary.CVlaremm <- function(object,...){
   k <- object$k
     # get fit measures
-    CV_m2LL <- object$`CV results`[which(object$`CV results`[,"penalty"] == object$`best penalty`), "sum CV_m2LL"]
+    CV_m2LL <- object$`CV results`[which(object$`CV results`[,"penalty"] == object$`best penalty`), "mean CV_m2LL"]
 
     convergence <- if(any(!object$`CV results`[,"convergence problems"] ==0)){"Problems with convergence occured"}else{"No convergence problems"}
     negativeVariances <- if(any(!object$`CV results`[,"negative variances"] ==0)){"Negative variances occured"}else{"No negative variances"}
@@ -68,7 +68,7 @@ summary.CVlaremm <- function(object,...){
         "A-parameter" = AparMat,
         "S-pararameter" = SparMat,
         "M-parameters" = MparMat,
-        "sum CV m2LL" =  CV_m2LL,
+        "mean CV m2LL" =  CV_m2LL,
         "negative variances" = negativeVariances,
         "convergence" = convergence
 
