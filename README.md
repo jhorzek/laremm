@@ -1,4 +1,4 @@
-**WARNING**: This package is *not** maintained and should **not** be used.
+**WARNING**: This package is **not** maintained and should **not** be used.
 
 # laremm
 This R package introduces LASSO regularization to Structural Equation Models built with OpenMx. 
